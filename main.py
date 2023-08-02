@@ -1,4 +1,12 @@
-# This is a sample Python script.
+'''
+
+Created By: Thomas Haskell
+Date: Summer 2023
+
+===== Machine Learning Project =====
+PLL Player Year-to- Year Stat Prediction
+
+'''
 
 import dbConnect
 import matplotlib.pyplot as plt
@@ -27,7 +35,7 @@ if __name__ == '__main__':
     frame = frame.astype(float)
     print(frame.head())
     print(frame.info())
-    #
+
     # # Scatter plot for Points vs. Shots
     # plt.figure(figsize=(8, 6))
     # plt.scatter(frame['Points'], frame['Time On Field'], color='orange')
@@ -45,9 +53,9 @@ if __name__ == '__main__':
 
     ####### TensorFlow Manipulation ######
     playerArr = frame.to_numpy()
-    pllTensor = tf.constant(playerArr, dtype=tf.float64)
+    pll2023 = tf.constant(playerArr, dtype=tf.float64)
 
-    print(pllTensor)
+    print(pll2023)
 
 
 
