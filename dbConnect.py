@@ -32,7 +32,6 @@ def dataRetrieve():
             df = pd.DataFrame(data, columns=cursor.column_names)
 
             # Print the DataFrame
-            print(df)
             return df
 
 
