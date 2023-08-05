@@ -1,6 +1,8 @@
 import mysql.connector
 import pandas as pd
 
+
+
 def dataRetrieve():
     #Credentials to the database full of stats
     db_config = {
@@ -22,8 +24,12 @@ def dataRetrieve():
 
             # Execute the SELECT statement to fetch all players with jersey number 8
             jersey_number = 8
-            select_query = f"SELECT * FROM stats WHERE Jersey={jersey_number};"
-            selectALL_query = f"SELECT * FROM stats;"
+            select_query = f"SELECT * FROM stats2023 WHERE Jersey={jersey_number};"
+            years = ["stats2023", "stats2022", "stats2021", "stats2020", "stats2019", "stats2018"]
+
+            for stat in years:
+                selectALL_query = selectALL_query + f"SELECT * FROM {stat};"
+
             # Replace 'your_table_name' with the actual table name containing player information
             cursor.execute(selectALL_query)
 
