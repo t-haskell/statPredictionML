@@ -24,17 +24,26 @@ def print_hi(name):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print_hi('PyCharm')
-    frame = dbConnect.dataRetrieve()
-    print(frame.info())
+    frame23 = dbConnect.dataRetrieve("stats2023")
+    frame22 = dbConnect.dataRetrieve("stats2022")
+    frame21 = dbConnect.dataRetrieve("stats2021")
+
+    print(frame23.info())
+    print(frame22.info())
+    print(frame21.info())
     print("Before drop")
 
+    collected_years = [frame23, frame22, frame21]
+
     # Drop the "First Name" and "Last Name" columns
-    frame.drop(columns=['First Name', 'Last Name', 'Position', 'Short Handed Goals Against'], inplace=True)
-    print(frame.info())
-    #Convert data types to float64
-    frame = frame.astype(float)
-    print(frame.head())
-    print(frame.info())
+    for year in collected_years:
+        #Gets rid of non-numeric columns which have no sense in analyzing
+        year.drop(columns=['First Name', 'Last Name', 'Position', 'Short Handed Goals Against'], inplace=True)
+        print(year.info())
+        # Convert data types to float64
+        year = year.astype(float)
+        print(year.info())
+
 
     # # Scatter plot for Points vs. Shots
     # plt.figure(figsize=(8, 6))
