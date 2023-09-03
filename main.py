@@ -11,6 +11,7 @@ import pandas as pd
 
 import dbConnect
 import matplotlib.pyplot as plt
+import seaborn as sb
 import tensorflow as tf
 import tensorflow_decision_forests as tfdf
 
@@ -29,11 +30,12 @@ def print_hi(name):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
     frame23 = dbConnect.dataRetrieve("stats2023")
     frame22 = dbConnect.dataRetrieve("stats2022")
     frame21 = dbConnect.dataRetrieve("stats2021")
     collected_years = [frame21, frame22, frame23]
+    years_label = ['2021', '2022', '2023']
+
     tensorYears = [t21, t22, t23]
 
 # Mapping players to a unique identifier to interpret predictions
@@ -61,14 +63,15 @@ if __name__ == '__main__':
     # plt.title('Correlation Matrix')
     # plt.show()
 
-    #----- TensorFlow Manipulation -----#
+    # ----- TensorFlow Manipulation ----- #
     # Create tensorflow datasets
-    print(len(frame23))
+    print(frame23[:5])
     tf_dataset_2023 = tfdf.keras.pd_dataframe_to_tf_dataset(frame23, label="points")
+
     tf_dataset_2022 = tfdf.keras.pd_dataframe_to_tf_dataset(frame22, label="points")
 
     # Combine previous years data for training
-    training_df = pd.concat([frame21, frame22], ignore_index=True) # Merges dataframes w reset index
+    training_df = pd.concat([frame21, frame22], ignore_index=True)  # Merges dataframes w reset index
     tf_combinedYears_train = tfdf.keras.pd_dataframe_to_tf_dataset(training_df, label="points")
 
     # Initialize and train model
@@ -82,7 +85,8 @@ if __name__ == '__main__':
     predictions = model.predict(tf_serving_dataset)
     filtered_predictions = predictions[player_identifiers.index]
 
-    predicted_points = filtered_predictions[:, 5] #Specifying points column
+    print(filtered_predictions[4])
+    predicted_points = filtered_predictions[:, 4] # Specifying points column
     print("Length of player_identifiers:", len(player_identifiers))
     print("Length of predictions:", len(predictions))
     print(player_identifiers.shape)
@@ -92,7 +96,7 @@ if __name__ == '__main__':
     final_results = pd.DataFrame({'player_id': player_identifiers.index, 'predicted_stat': predicted_points})
     final_results = pd.merge(final_results, player_identifiers, on='player_id')
 
-    print(final_results)
+    print(final_results.sort_values(by='predicted_stat', ascending=False))
 
     # MAKES DATAFRAMES INTO ARRAYS AND THEN EACH YEAR INTO INDIVIDUAL TENSORS
     # for year, tensor in zip(collected_years, tensorYears):
