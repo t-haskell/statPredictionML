@@ -8,6 +8,7 @@ PLL Player Year-to- Year Stat Prediction
 
 """
 import pandas as pd
+import xgboost
 
 import dbConnect
 import matplotlib.pyplot as plt
@@ -19,10 +20,6 @@ import seaborn as sns
 
 # Press ⌃R to execute it or replace it with your code.
 # Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
-
-t23 = tf.constant([])
-t22 = tf.constant([])
-t21 = tf.constant([])
 
 
 def print_hi(name):
@@ -55,7 +52,7 @@ def setup_dataframes():
     return frame18, frame19, frame20, frame21, frame22, frame23, player_identifiers, collected_years
 
 
-def create_and_train_model(training_df, serving_df):
+def create_and_train_TFmodel(training_df, serving_df):
     # Create tensorflow datasets
     tf_combinedYears_train = tfdf.keras.pd_dataframe_to_tf_dataset(training_df, label="points")
     tf_serving_dataset = tfdf.keras.pd_dataframe_to_tf_dataset(serving_df, label="points")
@@ -68,32 +65,49 @@ def create_and_train_model(training_df, serving_df):
     predictions = model.predict(tf_serving_dataset)
     return predictions
 
+def train_xgboost_model(training_df):
+    x = training_df.drop(columns=["points"])
+    y = training_df["points"]
+    model = xgboost.XGBRegressor(objective="reg:squarederror", random_state=42)
+    model.fit(x, y)
+
+    return model
 
 def main():
     frame18, frame19, frame20, frame21, frame22, frame23, player_identifiers, collected_years = setup_dataframes()
 
     # Compiling past years data as the training set
-    training_df = pd.concat(collected_years[:5], ignore_index=True)
+    training_df = pd.concat((frame23, frame19, frame20, frame21, frame22, frame18), ignore_index=True)
+    training_df = training_df[training_df['points'] > 0]
 
     serving_df = collected_years[-1]
 
-    predictions = create_and_train_model(training_df, serving_df)
+
+    #predictions = create_and_train_TFmodel(training_df, serving_df)
+
+    #Using XGBoost
+    xgboost_model = train_xgboost_model(training_df)
+    X_serving = serving_df.drop(columns=["points"])
+    Xpredictions = xgboost_model.predict(X_serving)
+    Xpoint_prediction = Xpredictions[player_identifiers.index]
 
     # Filter predictions using player identifiers
-    filtered_predictions = predictions[player_identifiers.index]
-
-    frame23 = collected_years[-1]
-    print(frame23.columns[:4])
-
-    print(filtered_predictions[:, 3])
-    predicted_points = filtered_predictions[:, 2]  # Specifying points column
-    print("Length of player_identifiers:", len(player_identifiers))
-    print("Length of predictions:", len(predictions))
-    print(player_identifiers.shape)
-    print(filtered_predictions.shape)
+    # filtered_predictions = predictions[player_identifiers.index]
+    #
+    # frame23 = collected_years[-1]
+    # print(frame23.columns[:4])
+    # print(filtered_predictions)
+    #
+    #
+    # print(filtered_predictions[:, 2])
+    # predicted_points = filtered_predictions[:, 2]  # Specifying points column
+    # print("Length of player_identifiers:", len(player_identifiers))
+    # print("Length of predictions:", len(Xpredictions))
+    # print(player_identifiers.shape)
+    # print(filtered_predictions.shape)
 
     # Combines player identifiers with predicted stats
-    final_results = pd.DataFrame({'player_id': player_identifiers.index, 'predicted_stat': predicted_points})
+    final_results = pd.DataFrame({'player_id': player_identifiers.index, 'predicted_stat': Xpoint_prediction})
     final_results = pd.merge(final_results, player_identifiers, on='player_id')
 
     print(final_results.sort_values(by='predicted_stat', ascending=False))
