@@ -18,15 +18,6 @@ import tensorflow_decision_forests as tfdf
 
 import seaborn as sns
 
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
-
-
 def setup_dataframes():
     frame23 = dbConnect.dataRetrieve("stats2023")
     frame22 = dbConnect.dataRetrieve("stats2022")
@@ -131,12 +122,7 @@ if __name__ == '__main__':
     # plt.title('Correlation Matrix')
     # plt.show()
 
-    # MAKES DATAFRAMES INTO ARRAYS AND THEN EACH YEAR INTO INDIVIDUAL TENSORS
-    # for year, tensor in zip(collected_years, tensorYears):
-    #     tensor = tf.constant(year.to_numpy(), dtype=tf.float64)
-    #     print("BOOOOOM")
-    #     print(tensor)
-    #
-    #
+
+
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
