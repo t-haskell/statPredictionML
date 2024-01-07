@@ -8,15 +8,13 @@ PLL Player Year-to- Year Stat Prediction
 
 """
 import pandas as pd
-import xgboost
+import xgboost 
 
 import dbConnect
 import matplotlib.pyplot as plt
 import seaborn as sb
 import tensorflow as tf
 import tensorflow_decision_forests as tfdf
-
-import seaborn as sns
 
 def setup_dataframes():
     frame23 = dbConnect.dataRetrieve("stats2023")
@@ -27,6 +25,21 @@ def setup_dataframes():
     frame18 = dbConnect.dataRetrieve("stats2018")
     collected_years = [frame18, frame19, frame20, frame21, frame22, frame23]
     years_label = ['2018', '2019', '2020', '2021', '2022', '2023']
+    f23 = pd.read_csv('stats2023')
+    f22 = pd.read_csv('stats2022')
+    f21 = pd.read_csv('stats2021')
+    f20 = pd.read_csv('stats2020')
+    f19 = pd.read_csv('stats2019')
+    f18 = pd.read_csv('stats2018')
+    
+    ## Discovering shapes of different year datasets
+    print("2023 shape: ", frame23.shape)
+    print("2022 shape: ", frame22.shape)
+    print("2021 shape: ", frame21.shape)
+    print("2020 shape: ", frame20.shape)
+    print("2019 shape: ", frame19.shape)
+    print("2018 shape: ", frame18.shape)
+    
 
     # Mapping players to a unique identifier to interpret predictions
     names_mapped = {player: idx for idx, player in enumerate(frame23['last_name'].unique())}
@@ -35,7 +48,7 @@ def setup_dataframes():
 
     # Drop the "First Name" and "Last Name" columns of string format
     for year in collected_years:
-        # Gets rid of non-numeric columns which have no sense in analyzing
+        # Gets rid of non-numeric columns 
         year.drop(columns=['first_name', 'last_name', 'position', 'short_handed_goals_against'], inplace=True)
         # Convert data types to float64
         #year = year.astype(float)
@@ -67,11 +80,15 @@ def train_xgboost_model(training_df):
 def main():
     frame18, frame19, frame20, frame21, frame22, frame23, player_identifiers, collected_years = setup_dataframes()
 
+
     # Compiling past years data as the training set
     training_df = pd.concat((frame23, frame19, frame20, frame21, frame22, frame18), ignore_index=True)
     training_df = training_df[training_df['points'] > 0]
 
     serving_df = collected_years[-1]
+    # Analyzying points year by year for each player
+    plt.scatter(training_df['points'], training_df['jersey'], )
+    plt.show()
 
 
     #predictions = create_and_train_TFmodel(training_df, serving_df)

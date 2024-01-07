@@ -44,7 +44,6 @@ def dataRetrieve(year):
 
 
 
-            # Replace 'your_table_name' with the actual table name containing player information
             cursor.execute(selectALL_query)
 
             # Fetch all the rows and create a pandas DataFrame
