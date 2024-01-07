@@ -18,4 +18,19 @@ from sklearn import metrics
 
 import xgboost
 
+f23 = pd.read_csv('stats2023.csv')
+f22 = pd.read_csv('stats2022.csv')
+f21 = pd.read_csv('stats2021.csv')
+f20 = pd.read_csv('stats2020.csv')
+f19 = pd.read_csv('stats2019.csv')
+f18 = pd.read_csv('stats2018.csv')
+print("2023: ", f23.head(), f23.shape)
+print("2022: ", f22.head(), f22.shape)
+print("2021: ", f21.head(), f21.shape)
+print("2020: ", f20.head(), f20.shape)
+print("2019: ", f19.head(), f19.shape)
+print("2018: ", f18.head(), f18.shape)
+years = [f23, f22, f21, f20, f19, f18]
+
+## Preprocessing dataframes ##
 
