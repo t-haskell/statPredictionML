@@ -61,8 +61,26 @@ train_df = pd.DataFrame(x_train, columns=['Position', 'Games Played', 'Shots', '
 train_df['Points'] = y_train.values
 print(train_df.info())
 print(train_df.head())
-sb.pairplot(train_df[0:15])
+#sb.pairplot(train_df[0:15])
+sb.heatmap(train_df.corr(), annot=True, cmap='coolwarm')
+plt.title('Training Feature Correlation')
 plt.show()
+
+## Standard Linear Regression ##
+from sklearn.linear_model import LinearRegression
+LinearReg = LinearRegression()
+x = np.asanyarray(x_train)
+y = np.asanyarray(y_train)
+LinearReg.fit(x, y) # training model on train sett
+predictions = LinearReg.predict(x_test) # predicting with trained model on test sett
+# Evaluating results
+lr_MAE = np.mean(np.abs(predictions - y_test))
+lr_MSE = np.mean((predictions - y_test) ** 2)
+lr_R2 = metrics.r2_score(y_test, predictions)
+# Showing results in tabular format as a data frame
+Report = pd.DataFrame({'Model' : ['Standard Linear Regression'], 'MAE': [lr_MAE], 'MSE': [lr_MSE], 'R2': [lr_R2]})
+print(Report)
+
 
 
 
