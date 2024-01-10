@@ -50,6 +50,20 @@ y = merged_df["Points"]
 print(y.shape)
 print(y[0:8])
 
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=10)
+
+## Data Visualization ##
+import seaborn as sb
+import matplotlib.pyplot as plt
+# Visualize the training data
+train_df = pd.DataFrame(x_train, columns=['Position', 'Games Played', 'Shots', 'Shots On Goal', '2pt Shots', '2pt Shots On Goal', 'Groundballs', 'Caused Turnovers'])
+train_df['Points'] = y_train.values
+print(train_df.info())
+print(train_df.head())
+sb.pairplot(train_df[0:15])
+plt.show()
+
 
 
 
