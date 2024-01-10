@@ -17,7 +17,7 @@ from sklearn import preprocessing
 from sklearn import metrics
 
 
-import xgboost
+import xgboost as xgb
 
 f23 = pd.read_csv('stats2023.csv')
 f22 = pd.read_csv('stats2022.csv')
@@ -81,6 +81,16 @@ lr_R2 = metrics.r2_score(y_test, predictions)
 Report = pd.DataFrame({'Model' : ['Standard Linear Regression'], 'MAE': [lr_MAE], 'MSE': [lr_MSE], 'R2': [lr_R2]})
 print(Report)
 
+## Using XGBoost training algorithms ##
+# creating XGBoost object
+xgb_model = xgb.XGBRegressor(objective='reg:squarederror', n_estimators=100, seed=0)
+xgb_model.fit(x_train, y_train) # fitting model (training) on train data set
+predictions = xgb_model.predict(x_test) # prediction
+# Evaluate predictions
+xg_mse = metrics.mean_squared_error(y_test, predictions, squared=True) # mean squared error
+xg_R2 = metrics.r2_score(y_test, predictions)
+print("XGBoost model MSE: ", xg_mse)
+print("XGBoost model R2: ", xg_R2)
 
 
 
