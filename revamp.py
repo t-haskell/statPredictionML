@@ -37,18 +37,18 @@ years = [f23, f22, f21, f20, f19, f18]
 ## Preprocessing dataframes ##
 merged_df = pd.concat([f23, f22, f21, f20, f19, f18], axis=0, join='outer')
 # selecting independent variables (Feature Selection)
-X = merged_df[['Position', 'Games Played', 'Shots', 'Shots On Goal', '2pt Shots', '2pt Shots On Goal', 'Groundballs', 'Caused Turnovers']].values
-print(X[0:8])
+X = merged_df[['Position', 'Games Played', 'Shots On Goal', '2pt Shots', '2pt Shots On Goal', 'Groundballs', 'Caused Turnovers']].values
+print(X[0:7])
 le_pos = preprocessing.LabelEncoder()
 le_pos.fit(['FO', 'M', 'SSDM', 'LSM', 'A', 'D', 'G','nan'])
 X[:,0] = le_pos.transform(X[:,0])
 X = X.astype(float)
 print(X.shape)
-print(X[0:8])
+print(X[0:7])
 # selecting dependent variable (target variable)
-y = merged_df["Points"]
+y = merged_df["Points"].astype(float)
 print(y.shape)
-print(y[0:8])
+print(y[0:7])
 
 from sklearn.model_selection import train_test_split
 x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=10)
@@ -57,14 +57,14 @@ x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 import seaborn as sb
 import matplotlib.pyplot as plt
 # Visualize the training data
-train_df = pd.DataFrame(x_train, columns=['Position', 'Games Played', 'Shots', 'Shots On Goal', '2pt Shots', '2pt Shots On Goal', 'Groundballs', 'Caused Turnovers'])
+train_df = pd.DataFrame(x_train, columns=['Position', 'Games Played', 'Shots On Goal', '2pt Shots', '2pt Shots On Goal', 'Groundballs', 'Caused Turnovers'])
 train_df['Points'] = y_train.values
 print(train_df.info())
 print(train_df.head())
 #sb.pairplot(train_df[0:15])
-sb.heatmap(train_df.corr(), annot=True, cmap='coolwarm')
-plt.title('Training Feature Correlation')
-plt.show()
+#sb.heatmap(train_df.corr(), annot=True, cmap='coolwarm')
+#plt.title('Training Feature Correlation')
+#plt.show()
 
 ## Standard Linear Regression ##
 from sklearn.linear_model import LinearRegression
@@ -84,13 +84,36 @@ print(Report)
 ## Using XGBoost training algorithms ##
 # creating XGBoost object
 xgb_model = xgb.XGBRegressor(objective='reg:squarederror', n_estimators=100, seed=0)
-xgb_model.fit(x_train, y_train) # fitting model (training) on train data set
+###### ADD NORMALIZATION TO DATA FOR XGB #########################
+xgb_model.fit(x, y) # fitting model (training) on train data set
 predictions = xgb_model.predict(x_test) # prediction
 # Evaluate predictions
 xg_mse = metrics.mean_squared_error(y_test, predictions, squared=True) # mean squared error
 xg_R2 = metrics.r2_score(y_test, predictions)
 print("XGBoost model MSE: ", xg_mse)
 print("XGBoost model R2: ", xg_R2)
+
+
+## Adjusting hyperparameters ##
+from sklearn.model_selection import GridSearchCV
+param_grid = {
+    'max_depth' : [3,4,5],
+    'learning_rate' : [0.1, 0.001, 0.001],
+    'n_estimators' : [100, 500, 1000]
+}
+# Create GridSearchCV object
+grid_searchXG = GridSearchCV(estimator=xgb_model, param_grid=param_grid, cv=5)
+grid_searchLR = GridSearchCV(estimator=LinearReg, param_grid=param_grid, cv=5)
+
+# Fit grid search to training data
+grid_searchXG.fit(x_train, y_train)
+grid_searchLR.fit(x_train, y_train)
+
+# print optimal parameters
+print("Optimum parameters for XGBoost model: ", grid_searchXG.best_params_)
+print("Optimum parameters for SKlearn linear reg. model: ", grid_searchLR.best_params_)
+
+
 
 
 
