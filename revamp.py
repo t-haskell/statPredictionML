@@ -61,15 +61,17 @@ x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 ## Data Visualization ##
 import seaborn as sb
 import matplotlib.pyplot as plt
+sb.heatmap(merged_df.drop(columns=['First Name', 'Last Name', 'Jersey', 'Position', 'Team']).astype(float).corr(), annot=False, cmap='coolwarm',)
+plt.title('All Feature Correlation')
+plt.show()
 # Visualize the training data
 train_df = pd.DataFrame(x_train, columns=['Position', 'Games Played', 'Shots On Goal', '2pt Shots', '2pt Shots On Goal', 'Groundballs', 'Caused Turnovers'])
 train_df['Points'] = y_train.values
 print(train_df.info())
 print(train_df.head())
-#sb.pairplot(train_df[0:15])
-#sb.heatmap(train_df.corr(), annot=True, cmap='coolwarm')
-#plt.title('Training Feature Correlation')
-#plt.show()
+sb.heatmap(train_df.corr(), annot=True, cmap='coolwarm')
+plt.title('Training Feature Correlation')
+plt.show()
 
 ## Standard Linear Regression ##
 from sklearn.linear_model import LinearRegression
