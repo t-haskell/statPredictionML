@@ -6,7 +6,12 @@ Create by: Thomas Haskell
 
 
 DESCRIPTION: Recreating 2023 summer project to better utilize machine learning
-techinques discovered from the IBM ML with Python Certification
+techinques discovered from the IBM ML with Python Certification. This file,
+'revamp.py', is a replacement for the original, 'main.py'. 
+
+-> Compares the results/error metrics for two models on the PLL dataset,
+one using a multiply linear regression algorithms from sklearn and the other
+using XGBoost's gradient decent algorithms. 
 
 
 '''
