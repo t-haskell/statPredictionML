@@ -104,7 +104,7 @@ print("XGBoost model MSE: ", xg_mse)
 print("XGBoost model R2: ", xg_R2)
 
 
-## Adjusting hyperparameters with GridSearchCV ##
+## GridSearchCV - Hyperparameter Tuning ##
 from sklearn.model_selection import GridSearchCV
 param_gridXG = {
     'max_depth' : [3,4,5],
@@ -115,27 +115,28 @@ param_gridXG = {
 
 ## -----> Section below is commented out to reduce computational stress,
 # since optimum parameters were printed and now used in new model below
+'''
+# Create GridSearchCV object (Commented out to avoid unnecessary computation)
+grid_searchXG = GridSearchCV(estimator=xgb_model, param_grid=param_gridXG, cv=5)
 
-# # Create GridSearchCV object (Commented out to avoid unnecessary computation)
-# grid_searchXG = GridSearchCV(estimator=xgb_model, param_grid=param_gridXG, cv=5)
+# Fit grid search to training data (Commented out to avoid unnecessary computation)
+grid_searchXG.fit(x_train, y_train)
 
-# # Fit grid search to training data (Commented out to avoid unnecessary computation)
-# grid_searchXG.fit(x_train, y_train)
+# print optimal parameters (Commented out to avoid unnecessary computation)
+print("Optimum parameters for XGBoost model: ", grid_searchXG.best_params_)
 
-# # print optimal parameters (Commented out to avoid unnecessary computation)
-# print("Optimum parameters for XGBoost model: ", grid_searchXG.best_params_)
+## Predicting with new parameters
+xgb_optim = xgb.XGBRegressor(objective='reg:squarederror', seed=0, n_estimators=100, learning_rate=0.1, max_depth=3, min_child_weight= 1)
+xgb_optim.fit(x, y)
+predictions = xgb_optim.predict(x_test)
+# Evaluate predictions
+xg_mse = metrics.mean_squared_error(y_test, predictions, squared=True) # mean squared error
+xg_R2 = metrics.r2_score(y_test, predictions)
+print("Optimized XGBoost model MSE: ", xg_mse)
+print("Optimized XGBoost model R2: ", xg_R2)
+'''
 
-# ## Predicting with new parameters
-# xgb_optim = xgb.XGBRegressor(objective='reg:squarederror', seed=0, n_estimators=100, learning_rate=0.1, max_depth=3, min_child_weight= 1)
-# xgb_optim.fit(x, y)
-# predictions = xgb_optim.predict(x_test)
-# # Evaluate predictions
-# xg_mse = metrics.mean_squared_error(y_test, predictions, squared=True) # mean squared error
-# xg_R2 = metrics.r2_score(y_test, predictions)
-# print("Optimized XGBoost model MSE: ", xg_mse)
-# print("Optimized XGBoost model R2: ", xg_R2)
-
-## Adjusting parameters with Random Search ##
+## Random Search - Hyperparameter Tuning ##
 from sklearn.model_selection import RandomizedSearchCV
 param_grid = {
     'max_depth': [3, 4, 5],
@@ -146,9 +147,12 @@ param_grid = {
     'subsample': [0.5, 0.75, 1],
     'colsample_bytree': [0.5, 0.75, 1]
 }
+############# Below is commented out to reduce compute time #########################
+''' (Already found from running)
 random_search = RandomizedSearchCV(estimator=xgb_model, param_distributions=param_grid, n_iter=100, cv=5, random_state=42 )
 random_search.fit(x, y)
 print(random_search.best_params_)
+''' 
 # Predicting with new parameters
 xgb_optim = xgb.XGBRegressor(objective='reg:squarederror', seed=0, n_estimators=1000, learning_rate=0.01, max_depth=3, min_child_weight= 5, subsample=0.5, gamma=0.1, colsample_bytree=1)
 xgb_optim.fit(x, y)
