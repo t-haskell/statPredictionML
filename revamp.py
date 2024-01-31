@@ -32,10 +32,6 @@ f19 = pd.read_csv('stats2019.csv')
 f18 = pd.read_csv('stats2018.csv')
 print("2023: ", f23.describe(), f23.shape)
 print("2022: ", f22.describe(), f22.shape)
-# print("2021: ", f21.head(), f21.shape)
-# print("2020: ", f20.head(), f20.shape)
-# print("2019: ", f19.head(), f19.shape)
-# print("2018: ", f18.head(), f18.shape)
 years = [f23, f22, f21, f20, f19, f18]
 
 
@@ -61,17 +57,22 @@ x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 ## Data Visualization ##
 import seaborn as sb
 import matplotlib.pyplot as plt
-sb.heatmap(merged_df.drop(columns=['First Name', 'Last Name', 'Jersey', 'Position', 'Team']).astype(float).corr(), annot=False, cmap='coolwarm',)
-plt.title('All Feature Correlation')
+valid_features = merged_df.drop(columns=['First Name', 'Last Name', 'Jersey', 'Position', 'Team','Scores Against', 'Scores Against Average', 'Save Pct', 'Faceoff Wins', 'Saves', 'Short Handed Shots', 'Short Handed Goals Against', 'Power Play Goals Against', '2pt Goals Against', '2pt GAA','Faceoff Losses', 'Power Play Goals']).astype(float)
+all_var_correlation = sb.heatmap(valid_features.corr(), annot=False, cmap='rocket')
+all_var_correlation.set_xticklabels(all_var_correlation.get_xticklabels(), rotation=45, horizontalalignment='right', fontsize=9)
+all_var_correlation.set_yticklabels(all_var_correlation.get_yticklabels(), rotation=0, horizontalalignment='right', fontsize=9)
+plt.title('Heatmap for All Feature Correlation')
 plt.show()
 # Visualize the training data
-train_df = pd.DataFrame(x_train, columns=['Position', 'Games Played', 'Shots On Goal', '2pt Shots', '2pt Shots On Goal', 'Groundballs', 'Caused Turnovers'])
+train_df = pd.DataFrame(x_train, columns=['Position', 'Games Played', 'Shots On Goal', '2pt Shots', 'Power Play Shots', 'Groundballs', 'Turnovers'])
 train_df['Points'] = y_train.values
 print(train_df.info())
 print(train_df.head())
-sb.heatmap(train_df.corr(), annot=True, cmap='coolwarm')
+sb.heatmap(train_df.corr(), annot=True, cmap='rocket')
 plt.title('Training Feature Correlation')
 plt.show()
+
+
 
 ## Standard Linear Regression ##
 from sklearn.linear_model import LinearRegression
@@ -87,6 +88,8 @@ lr_R2 = metrics.r2_score(y_test, predictions)
 # Showing results in tabular format as a data frame
 Report = pd.DataFrame({'Model' : ['Standard Linear Regression'], 'MAE': [lr_MAE], 'MSE': [lr_MSE], 'R2': [lr_R2]})
 print(Report)
+
+
 
 ## Using XGBoost training algorithms ##
 # creating XGBoost object
@@ -156,5 +159,51 @@ xg_R2 = metrics.r2_score(y_test, predictions)
 print("Optimized XGBoost model MSE: ", xg_mse)
 print("Optimized XGBoost model R2: ", xg_R2)
 
+## TensorFlow ##
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+
+def create_tfNueralModel():
+    # Defining simple neural network
+    model = keras.Sequential([
+        layers.Dense(64, activation='relu', input_shape=(X.shape[1],)),
+        layers.Dense(32, activation='relu'),
+        layers.Dense(1) # output layer, predicting single value
+    ])
+    model.compile(optimizer='adam', loss='mean_squared_error')
+    return model
 
 
+nuerModel = create_tfNueralModel()
+# Train the nueral network
+nuerModel.fit(x, y, epochs=5, batch_size=32, validation_split=0.2)
+# Evaluating nueral network on the test set
+nn_predictions = nuerModel.predict(x_test)
+# Evaluate predictions
+nn_mse = metrics.mean_squared_error(y_test, nn_predictions, squared=True)
+nn_R2 = metrics.r2_score(y_test, nn_predictions)
+print("Neural Network MSE: ", nn_mse)
+print("Neural Network R2: ", nn_R2)
+
+## Predicting with new parameters
+from tensorflow.keras.Wrappers import KerasRegressor
+keras_regressor = KerasRegressor(build_fn=create_tfNueralModel, epochs=50, batch_size=32, verbose=0)
+# Define the parameter grid
+param_grid = {
+    'epochs': [50, 100, 200],
+    'batch_size': [16, 32, 64],
+    'optimizer': ['adam', 'rmsprop']
+    # Add more hyperparameters and their distributions as needed
+}
+# Initialize RandomizedSearchCV
+random_search = RandomizedSearchCV(estimator=keras_regressor, param_distributions=param_grid, n_iter=10, cv=3, verbose=2)
+# Fit RandomizedSearchCV to your data
+random_search.fit(x_train, y_train)
+# Get the best parameters
+best_params = random_search.best_params_
+print("Best parameters:", best_params)
+# Evaluate the best model on the test set
+best_model = random_search.best_estimator_
+test_loss = best_model.score(x_test, y_test)
+print("Test Loss:", test_loss)
