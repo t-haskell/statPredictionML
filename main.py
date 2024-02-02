@@ -25,12 +25,6 @@ def setup_dataframes():
     frame18 = dbConnect.dataRetrieve("stats2018")
     collected_years = [frame18, frame19, frame20, frame21, frame22, frame23]
     years_label = ['2018', '2019', '2020', '2021', '2022', '2023']
-    f23 = pd.read_csv('stats2023')
-    f22 = pd.read_csv('stats2022')
-    f21 = pd.read_csv('stats2021')
-    f20 = pd.read_csv('stats2020')
-    f19 = pd.read_csv('stats2019')
-    f18 = pd.read_csv('stats2018')
     
     ## Discovering shapes of different year datasets
     print("2023 shape: ", frame23.shape)
@@ -121,7 +115,6 @@ def main():
     print(final_results.sort_values(by='predicted_stat', ascending=False))
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     main()
 
